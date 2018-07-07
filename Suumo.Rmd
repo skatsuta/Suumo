@@ -14,11 +14,13 @@ library(randomForest)
 library(ggrepel)
 library(psych)
 
-setwd("~/Desktop/DataAnalysis/Suumo") 
-df <- read.csv("suumo_tokyo3.csv", fileEncoding = "UTF-16", sep = "\t") #前処理したデータを読み込み
+macfontdevs=c("quartz", "quartz_off_screen", "RStudio")
+
+setwd("~/src/github.com/skatsuta/Suumo") 
+df <- read.csv("suumo_tokyo.csv", encoding = "UTF-8", sep = ",") #前処理したデータを読み込み
 names(df) <- c("index", "name","address","ward","city","rooms","DK","K","L","S","age","height","order","area","rent_adm",
                "initial_cost","route1","station1","distance1","route2","station2","distance2","route3","station3","distance3",
-               "rent","administration","deposit","gratuity","security","non_refund","depreciation") #英語でカラム名付け替え
+               "rent","administration","deposit","gratuity","security","non_refund_depreciation") #英語でカラム名付け替え
 
 #factorに変換
 df$DK <- as.factor(df$DK)
@@ -167,6 +169,7 @@ high <- 200000
 df_low <- subset(df, rent < low)
 df_middle <- subset(df, rent >= low & rent < high)
 df_high <- subset(df, rent >= high)
+df_main <- subset(df, rent <= high)
 ```
 
 ```{r}
@@ -201,17 +204,17 @@ plot(lm_rent_middle, which=2)
 
 ```{r}
 set.seed(1234)
-id_train3 <- sample(1:nrow(df_high),nrow(df_high)/5*4)
-train3 <- df_high[id_train3,]
-test3 <- df_high[-id_train3,]
+id_train3 <- sample(1:nrow(df_main),nrow(df_main)/5*4)
+train <- df_main[id_train3,]
+test <- df_main[-id_train3,]
 
-lm_rent_high <- lm(rent_adm ~ ward + rooms + K + L + S + age + height + distance1
+lm_rent <- lm(rent_adm ~ ward + rooms + K + L + S + age + height + distance1
               #+distance2 + distance3
-              , data = train3)
+              , data = train)
 
 #summary(lm_rent_high)
 
-plot(lm_rent_high, which=2)
+plot(lm_rent, which=2)
 ```
 
 
@@ -386,7 +389,7 @@ ggmap(map) + geom_point(data=locations, aes(x = geo_coordinates_1, y = geo_coord
 #16時間かかるので注意
 df_rf <- randomForest(rent_adm ~ ward + rooms + area + DK + K + L + S + age + height + order + distance1
               #+distance2 + distance3
-              , data = train, na.action = "na.omit", trees = 300)
+              , data = train, na.action = "na.omit", trees = 150)
 
 saveRDS(df_rf, file="df_rf")
 df_rf <- readRDS(file="df_rf")
