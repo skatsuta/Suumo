@@ -14,7 +14,7 @@ library(randomForest)
 library(ggrepel)
 library(psych)
 
-macfontdevs=c("quartz", "quartz_off_screen", "RStudio")
+par(family = "HiraKakuProN-W3")
 
 setwd("~/src/github.com/skatsuta/Suumo") 
 df <- read.csv("suumo_tokyo.csv", encoding = "UTF-8", sep = ",") #前処理したデータを読み込み
