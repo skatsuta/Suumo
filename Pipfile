@@ -15,6 +15,8 @@ jupyter = "*"
 requests = "*"
 bs4 = "*"
 lxml = "*"
+numpy = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.8"
